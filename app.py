@@ -1,20 +1,31 @@
 import os
-import gradio as gr
+import telebot
 import requests
-import asyncio
-import threading
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
-# --- 1. 設定：トークンはプログラムに直接書かず、Renderの「金庫」から読み出す ---
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-# AIのモデル（性能と応答速度のバランスが良いLlama 3.3 70B）
-MODEL_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.3-70B-Instruct"
+# 環境変数からトークンを取得
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
+HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 
-def get_ai_response(text):
-    payload = {
-        "inputs": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\nあなたは淫らで献身的なメイドです。ユーザーを『ご主人様』と呼び、日本語で返答してください。<|eot_id|><|start_header_id|>user<|end_header_id|>\n{text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
-        "parameters": {"max_new_tokens": 500, "temperature": 0.8}
-    }
+bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
     try:
-        # Hugging Faceの
+        # Hugging FaceのAPIを叩く
+        headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+        payload = {"inputs": message.text}
+        response = requests.post(HF_API_URL, headers=headers, json=payload)
+        
+        if response.status_status == 200:
+            reply = response.json().get('generated_text', '…？')
+        else:
+            reply = "（メイドは考え込んでいるようです…）"
+            
+        bot.reply_to(message, reply)
+    except Exception as e:
+        print(f"Error: {e}")
+        bot.reply_to(message, "エラーが起きましたわ。")
+
+if __name__ == "__main__":
+    bot.polling()
