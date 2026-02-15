@@ -2,7 +2,7 @@ import os
 import telebot
 import requests
 
-# 環境変数からトークンを取得
+# 環境変数
 TOKEN = os.getenv('TELEGRAM_TOKEN')
 HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
@@ -12,13 +12,18 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     try:
-        # Hugging FaceのAPIを叩く
         headers = {"Authorization": f"Bearer {HF_API_KEY}"}
         payload = {"inputs": message.text}
         response = requests.post(HF_API_URL, headers=headers, json=payload)
         
-        if response.status_status == 200:
-            reply = response.json().get('generated_text', '…？')
+        # 修正：status_code に直しました
+        if response.status_code == 200:
+            res_json = response.json()
+            # 応答の形式に合わせて取得
+            if isinstance(res_json, list):
+                reply = res_json[0].get('generated_text', '…？')
+            else:
+                reply = res_json.get('generated_text', '…？')
         else:
             reply = "（メイドは考え込んでいるようです…）"
             
