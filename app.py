@@ -12,7 +12,8 @@ def handle(m):
     try:
         r = c.chat.completions.create(model="meta-llama/llama-3.1-8b-instruct:free", messages=[{"role":"system","content":S},{"role":"user","content":m.text}])
         b.reply_to(m, r.choices[0].message.content)
-    except Exception as e: b.reply_to(m, f"err:{str(e)[:10]}")
+    except Exception as e:
+        b.reply_to(m, f"詳細エラー: {str(e)}")  # ここで原因を特定する
 if __name__ == "__main__":
     threading.Thread(target=run).start()
     b.polling()
