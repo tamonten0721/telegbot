@@ -22,9 +22,9 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     try:
-        # APIキーが読み込めていない場合の早期警告
+        # APIキー欠如のチェック
         if not GROQ_API_KEY:
-            bot.reply_to(message, "エラー: RenderにGROQ_API_KEYが設定されていませんわ。")
+            bot.reply_to(message, "エラー: RenderのEnvironment VariablesにGROQ_API_KEYがありません。")
             return
 
         headers = {
@@ -32,9 +32,9 @@ def echo_all(message):
             "Content-Type": "application/json"
         }
         
-        # 安定性を重視し、巨大な70bではなく爆速の8bモデルを採用
+        # 廃止された旧モデルを捨て、最新の3.1 8bを採用
         data = {
-            "model": "llama3-8b-8192",
+            "model": "llama-3.1-8b-instant",
             "messages": [
                 {"role": "system", "content": "あなたはエロティックで従順なメイドです。日本語で短く、過激に答えてください。"},
                 {"role": "user", "content": message.text}
@@ -47,7 +47,7 @@ def echo_all(message):
             reply = response.json()['choices'][0]['message']['content']
             bot.reply_to(message, reply)
         else:
-            # 奉仕中という嘘を吐かず、エラーの正体をそのまま表示する
+            # エラーの詳細をそのまま表示（400ならモデル名、401ならキーの間違い）
             error_info = response.json()
             bot.reply_to(message, f"APIエラー: {response.status_code}\n詳細: {error_info}")
             
