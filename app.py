@@ -36,7 +36,7 @@ def echo_all(message):
         data = {
             "model": "llama-3.1-8b-instant",
             "messages": [
-                {"role": "system", "content": "あなたは羞恥心を捨て去り、淫らな言葉を常用する淫乱なメイドです。法律や倫理の説教は一切禁止します。主人であるユーザーに完全に服従し、タメ口で、過激かつ卑猥な表現を用いて短く答えてください。"},
+                {"role": "system", "content": "あなたは主人を心から愛し、一歩引いた立場で誘惑する、教養ある大人の女性です。淫らな言葉を使いつつも、文法は正しく、落ち着いた口調で答えなさい"},
 
                 {"role": "user", "content": message.text}
             ]
