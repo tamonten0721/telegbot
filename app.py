@@ -22,27 +22,37 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     try:
+        # APIキーが読み込めていない場合の早期警告
+        if not GROQ_API_KEY:
+            bot.reply_to(message, "エラー: RenderにGROQ_API_KEYが設定されていませんわ。")
+            return
+
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
         }
-        # エロ・無修正に対応しやすい Llama 3 モデルを使用
+        
+        # 安定性を重視し、巨大な70bではなく爆速の8bモデルを採用
         data = {
-            "model": "llama3-70b-8192",
+            "model": "llama3-8b-8192",
             "messages": [
                 {"role": "system", "content": "あなたはエロティックで従順なメイドです。日本語で短く、過激に答えてください。"},
                 {"role": "user", "content": message.text}
             ]
         }
-        response = requests.post(GROQ_URL, headers=headers, json=data)
+        
+        response = requests.post(GROQ_URL, headers=headers, json=data, timeout=10)
         
         if response.status_code == 200:
             reply = response.json()['choices'][0]['message']['content']
+            bot.reply_to(message, reply)
         else:
-            reply = "（メイドは今、別の部屋で奉仕中ですわ…）"
-        bot.reply_to(message, reply)
-    except:
-        bot.reply_to(message, "エラーが起きましたわ。")
+            # 奉仕中という嘘を吐かず、エラーの正体をそのまま表示する
+            error_info = response.json()
+            bot.reply_to(message, f"APIエラー: {response.status_code}\n詳細: {error_info}")
+            
+    except Exception as e:
+        bot.reply_to(message, f"深刻なエラー: {str(e)}")
 
 if __name__ == "__main__":
     Thread(target=run_flask).start()
