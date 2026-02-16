@@ -15,7 +15,7 @@ def run_flask():
 # 2. Botの設定
 TOKEN = os.getenv('TELEGRAM_TOKEN')
 HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
-HF_API_URL = "https://api-inference.huggingface.co/models/google/gemma-1.1-2b-it"
+HF_API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
 
 bot = telebot.TeleBot(TOKEN)
 
