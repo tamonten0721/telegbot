@@ -7,7 +7,7 @@ import google.generativeai as genai
 token = os.environ['TELEGRAM_TOKEN']
 genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
 bot = telebot.TeleBot(token)
-model = GenerativeModel("gemini-1.5-flash")
+model = GenerativeModel("models/gemini-1.5-flash")
 
 # 2. 稼ぎのロジック（システムプロンプト）
 S = """あなたは『負け組脱出』に特化した、最強の現金生成AIだ。
